@@ -16,13 +16,28 @@ class Chess:
 
     def __inputHandler(self):
         oldPos = input("Move From:")
+        if(not self.__board.validatePosition(oldPos)):
+            self.draw(2)
+            self.__inputHandler()
+
+        self.__board.toogleSelectPiece(oldPos)
         self.draw()
+
         newPos = input("Move To:")
+        if(not self.__board.validatePosition(newPos, False)):
+            self.__board.toogleSelectPiece(oldPos)
+            self.draw(2)
+            self.__inputHandler()
+            
         self.draw()
-        self.__movePiece(oldPos, newPos)
+        self.__board.toogleSelectPiece(oldPos)
+        if(not self.__movePiece(oldPos, newPos)):
+            self.draw(2)
+            self.__inputHandler()
+        print("Moving to: " + newPos)
 
     def __movePiece(self, oldPos, newPos):
-        self.__board.movePiecePos(oldPos, newPos)
+        return self.__board.movePiecePos(oldPos, newPos)
 
     def start(self):
         self.__initGame()
@@ -33,7 +48,7 @@ class Chess:
         self.draw()
         while(True):
             self.__inputHandler()
-            self.draw(0.5)
+            self.draw(1)
 
     def draw(self, wait = 0):
         sleep(wait)

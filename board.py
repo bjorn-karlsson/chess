@@ -1,4 +1,5 @@
 import sys
+from termcolor import colored, cprint
 
 from chessPieces import *
 
@@ -8,58 +9,112 @@ class Board:
     
     def __init__(self):
         self.__board = []
+        self.__board_positions = []
         self.__horizontals = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+        self.__position_indexes = {
+            "horizontal":0,
+            "vertical":1,
+            "place":2,
+            "piece":3
+        }
     def __str__(self):
         if len(self.__board) != 64:
                 return ""
+        output = " "
+        for place in self.__horizontals:
+            output += " " + place 
+        output += "\n"
+
+
+
+
+        count = 1
+        print() 
+        for place in self.__board:
+            output += ""
+            if(count < 8):
+                if(count == 1):
+                    if(isinstance(place[self.__position_indexes.get("piece")], chessPiece)):
+                        output += place[self.__position_indexes.get("vertical")] + " " + place[self.__position_indexes.get("piece")].displayOnBoard()
+                    else:
+                        output += place[self.__position_indexes.get("vertical")] + " " + place[self.__position_indexes.get("place")] + " "
+                else:
+                    if(isinstance(place[self.__position_indexes.get("piece")], chessPiece)):
+                        output += place[self.__position_indexes.get("piece")].displayOnBoard()
+                    else: 
+                        output += place[self.__position_indexes.get("place")] + " "
+
+                count += 1
+            else:
+                if(isinstance(place[self.__position_indexes.get("piece")], chessPiece)):
+                    output += place[self.__position_indexes.get("piece")].displayOnBoard()  + place[self.__position_indexes.get("vertical")] + "\n"
+                else:
+                    output += place[self.__position_indexes.get("place")] + " " + place[self.__position_indexes.get("vertical")] + "\n"
+                count = 1
+
+
+        output += " "
+        for place in self.__horizontals:
+            output += " " + place 
+        return output     
+    def old__str__(self):
+        if len(self.__board) != 64:
+            return ""
         output = "\n "
         for place in self.__horizontals:
             output += " " + place 
         output += "\n"
         count = 0
         for place in self.__board:
-        
+
             if(count < 8):
                 if (count == 0):
-                    output += place[1] + " "
-                if(isinstance(place[3], chessPiece)):
-                    output += place[3].symbol + " "
+                    output += place[self.__position_indexes.get("vertical")] + " "
+                if(isinstance(place[self.__position_indexes.get("piece")], chessPiece)):
+                    output += place[self.__position_indexes.get("piece")].displayOnBoard()
                 else:
-                    output += place[2] + " "
+                    output += place[self.__position_indexes.get("place")] + " "
                 
             else:
-                output += '\n' + place[1] + " "
-                if(isinstance(place[3], chessPiece)):
-                    output += place[3].symbol + " "
+                
+                output += '\n' + place[self.__position_indexes.get("vertical")] + " "
+                
+                if(isinstance(place[self.__position_indexes.get("piece")], chessPiece)):
+                    output += place[self.__position_indexes.get("piece")].displayOnBoard()
                 else:
-                    output += place[2] + " "
+                    output += place[self.__position_indexes.get("place")] + " "
                 count = 0
+
             count += 1
-    
+
+
+        output += "\n "
+        for place in self.__horizontals:
+            output += " " + place 
         return output
 
     def __initBoardPieces(self):
         #Rooks
-        self.addPiece('a1', Rook('w')), self.addPiece('a8', Rook('b'))
-        self.addPiece('h1', Rook('w')), self.addPiece('h8', Rook('b'))
+        self.addPiece('a1', Rook('green')), self.addPiece('a8', Rook('grey'))
+        self.addPiece('h1', Rook('green')), self.addPiece('h8', Rook('grey'))
         # Knights
-        self.addPiece('b1', Knight('w')), self.addPiece('b8', Knight('b'))
-        self.addPiece('g1', Knight('w')), self.addPiece('g8', Knight('b'))
+        self.addPiece('b1', Knight('green')), self.addPiece('b8', Knight('grey'))
+        self.addPiece('g1', Knight('green')), self.addPiece('g8', Knight('grey'))
 
         # Bishops
-        self.addPiece('c1', Bishop('w')), self.addPiece('c8', Bishop('b'))
-        self.addPiece('f1', Bishop('w')), self.addPiece('f8', Bishop('b'))
+        self.addPiece('c1', Bishop('green')), self.addPiece('c8', Bishop('grey'))
+        self.addPiece('f1', Bishop('green')), self.addPiece('f8', Bishop('grey'))
 
         # Kings and Queens
-        self.addPiece('d1', Queen('w')),  self.addPiece('d8', Queen('b'))
-        self.addPiece('e1', King('w')),   self.addPiece('e8', King('b'))
+        self.addPiece('d1', Queen('green')),  self.addPiece('d8', Queen('grey'))
+        self.addPiece('e1', King('green')),   self.addPiece('e8', King('grey'))
 
         # Pawns
-        self.addPiece('a2', Pawn('w')), self.addPiece('b2', Pawn('w')), self.addPiece('c2', Pawn('w')), self.addPiece('d2', Pawn('w'))
-        self.addPiece('e2', Pawn('w')), self.addPiece('f2', Pawn('w')), self.addPiece('g2', Pawn('w')), self.addPiece('h2', Pawn('w'))
+        self.addPiece('a2', Pawn('green')), self.addPiece('b2', Pawn('green')), self.addPiece('c2', Pawn('green')), self.addPiece('d2', Pawn('green'))
+        self.addPiece('e2', Pawn('green')), self.addPiece('f2', Pawn('green')), self.addPiece('g2', Pawn('green')), self.addPiece('h2', Pawn('green'))
         
-        self.addPiece('a7', Pawn('b')), self.addPiece('b7', Pawn('b')), self.addPiece('c7', Pawn('b')), self.addPiece('d7', Pawn('b'))
-        self.addPiece('e7', Pawn('b')), self.addPiece('f7', Pawn('b')), self.addPiece('g7', Pawn('b')), self.addPiece('h7', Pawn('b'))
+        self.addPiece('a7', Pawn('grey')), self.addPiece('b7', Pawn('grey')), self.addPiece('c7', Pawn('grey')), self.addPiece('d7', Pawn('grey'))
+        self.addPiece('e7', Pawn('grey')), self.addPiece('f7', Pawn('grey')), self.addPiece('g7', Pawn('grey')), self.addPiece('h7', Pawn('grey'))
 
     def initBoard(self):
         self.__horizontals
@@ -67,9 +122,11 @@ class Board:
         for v in range(1,9):
             for h in self.__horizontals:
                 if color_counter % 2 == 0:
-                    self.__board.append([h, str(v), " ", None])
+                    self.__board.append([h, str(v), colored("x", 'red'), None])
+                    self.__board_positions.append(h + str(v))
                 else:
-                    self.__board.append([h, str(v), '+', None])
+                    self.__board.append([h, str(v), colored('+', 'blue'), None])
+                    self.__board_positions.append(h + str(v))
                 color_counter +=1
             if color_counter % 2 != 1:
                 color_counter = 1
@@ -78,27 +135,58 @@ class Board:
         self.__initBoardPieces()
 
     def addPiece(self, position, piece):
-        self.__board[self.positionToIndex(position)][3] = piece      
+        self.__board[self.positionToIndex(position)][self.__position_indexes.get("piece")] = piece      
+
+    def validatePosition(self, position, isPiece = True):
+        if(position not in self.__board_positions):
+            print("Must select a real position")
+            return False  
+
+        if(not isinstance(self.__board[self.positionToIndex(position)][self.__position_indexes.get("piece")], chessPiece) and isPiece):
+            print("Must select a chess piece")
+            return False
+        return True
 
     def movePiecePos(self, current_position, new_position):
-        if(self.__board[self.positionToIndex(current_position)][3].isValidMove()):
-            if(isinstance(self.__board[self.positionToIndex(current_position)][3], chessPiece)):
-                self.__board[self.positionToIndex(new_position)][3] = self.__board[self.positionToIndex(current_position)][3]
-                self.__board[self.positionToIndex(current_position)][3] = None
+
+        if(current_position == new_position):
+            print("cannot move to same location")
+            return False
+
+        current_position_index = self.positionToIndex(current_position)
+        new_position_index = self.positionToIndex(new_position)
+
+        if(self.__board[current_position_index][self.__position_indexes.get("piece")].isValidMove()):
+            print("Cannot move " + self.__board[current_position_index][self.__position_indexes.get("piece")].name + " to: " + new_position)
+            return False
+
+            
+        self.__board[new_position_index][self.__position_indexes.get("piece")] = self.__board[current_position_index][self.__position_indexes.get("piece")]
+        self.__board[current_position_index][self.__position_indexes.get("piece")] = None
+            
+        return True
+
+
 
     def removePieceByPosition(self, position):
-        self.__board[self.positionToIndex(position)][3] = None
+        self.__board[self.positionToIndex(position)][self.__position_indexes.get("piece")] = None
 
     def removePieceByName(self, piece):
         pass
 
+    def toogleSelectPiece(self, position):
+        
+        if(isinstance(self.__board[self.positionToIndex(position)][self.__position_indexes.get("piece")], chessPiece)):
+            self.__board[self.positionToIndex(position)][self.__position_indexes.get("piece")].selected = not self.__board[self.positionToIndex(position)][self.__position_indexes.get("piece")].selected
    # Helpers
 
-    def reverseArr(self, array):
-        reversed_array = []
-        for i in reversed(array):
-            reversed_array.append(i)
-        return reversed_array
+    def recursive_find(haystack, needle):
+        for hay in haystack:
+            if(isinstance(hay, list)):
+                return Board.recursive_find(hay, needle)
+            if(hay == needle):
+                return True
+        return False
 
     def positionToArray(self, position):
         return [position[:1], position[1:]]
@@ -111,4 +199,4 @@ class Board:
                 return count
             count += 1
         
-        return None
+        return False

@@ -7,5 +7,4 @@ def main():
     chess.start()
     chess.draw()
 
-
 main()
