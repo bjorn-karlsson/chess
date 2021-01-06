@@ -16,10 +16,16 @@ class Chess:
         self.player1, self.player2 = [], []
 
     def __inputHandler(self):
-        oldPos = input("Move From:")
+        oldPos = input("Input:")
+
+        if(oldPos == "R"):
+            self.__board = Board()
+            self.__initGame()
+            
+
         if(not self.__board.validPosition(oldPos)):
             self.draw(2)
-            self.__inputHandler()
+            return self.__inputHandler()
 
         self.__board.toogleSelectPiece(oldPos)
         self.draw()
@@ -28,13 +34,13 @@ class Chess:
         if(not self.__board.validPosition(newPos, False)):
             self.__board.toogleSelectPiece(oldPos)
             self.draw(2)
-            self.__inputHandler()
+            return self.__inputHandler()
             
         self.draw()
         self.__board.toogleSelectPiece(oldPos)
         if(not self.__board.movePiecePosition(oldPos, newPos)):
             self.draw(2)
-            self.__inputHandler()
+            return self.__inputHandler()
         print("Moving to: " + newPos)
 
     def start(self):
@@ -45,7 +51,7 @@ class Chess:
         self.draw()
         while(True):
             self.__inputHandler()
-            self.draw(1)
+            self.draw()
 
     def draw(self, wait = 0):
         sleep(wait)

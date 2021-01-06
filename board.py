@@ -164,7 +164,8 @@ class Board:
         current_position_index = self.positionToIndex(current_position)
         new_position_index = self.positionToIndex(new_position)
 
-        if(not self.__board[current_position_index][self.__position_indexes.get("piece")].isValidMove(current_position_index, new_position_index, self.__board)):
+
+        if(not self.__board[current_position_index][self.__position_indexes.get("piece")].isValidMove(current_position_index, new_position_index, self.__board[new_position_index][self.__position_indexes.get("piece")])):
             print("Cannot move " + self.__board[current_position_index][self.__position_indexes.get("piece")].name + " to: " + new_position)
             return False
 

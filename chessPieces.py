@@ -21,8 +21,15 @@ class chessPiece:
         else: 
             return colored(self.symbol + " ", self.color)
 
-    def isValidMove(self):
+    def isValidMove(self, piece):
+        if(not isinstance(piece, chessPiece)):
+            return True
+        if(self.is_reversed == piece.is_reversed):
+            return False
         return True
+
+
+        
 
     def reverse(self):
         self.is_reversed = True
@@ -33,49 +40,56 @@ class chessPiece:
 class King(chessPiece):
     def __init__(self, color):
        super().__init__('K', color, "King")
+    def isValidMove(self, cur_index, new_index, piece):
+        pass
 
 class Queen(chessPiece):
     def __init__(self, color):
         super().__init__('Q', color, "Queen")
-
+    def isValidMove(self, cur_index, new_index, piece):
+        pass
 class Rook(chessPiece):
     def __init__(self, color):
         super().__init__('r', color, "Rook")
+    def isValidMove(self, cur_index, new_index, piece):
+        pass
 
 class Bishop(chessPiece):
     def __init__(self, color):
         super().__init__('b', color, "Bishop")
+    def isValidMove(self, cur_index, new_index, piece):
+        pass
+
 
 class Knight(chessPiece):
     def __init__(self, color):
         super().__init__('k', color, "Knight")
-
+    def isValidMove(self, cur_index, new_index, piece):
+        dif_index = cur_index - new_index
+        print(dif_index)
+        if(dif_index != 10 and dif_index != -10  
+            and dif_index != 15 and dif_index != -15
+            and dif_index != 17 and dif_index != -17
+            and dif_index != 6 and dif_index != -6):
+            return False
+        return super().isValidMove(piece)
 class Pawn(chessPiece):
     def __init__(self, color):
         super().__init__('p', color, "Pawn")
 
-    def isValidMove(self, cur_index, new_index, board):
-        contains_piece = isinstance(board[new_index][3], chessPiece)
-        steps = 0
-        if(self.is_reversed):
-            while(cur_index > new_index and cur_index != new_index):
-                cur_index -= 8
-                steps += 1  
-        else:
-            while(cur_index < new_index and cur_index != new_index):
-                cur_index += 8
-                steps += 1
-        print(new_index - cur_index, steps)
-        result = new_index - cur_index
+    def isValidMove(self, cur_index, new_index, piece):
+        dif_index = cur_index - new_index
+        if(not self.is_reversed):
+            dif_index = dif_index * -1
 
-        if ((steps == 2 or steps == 1) and self.first_move and result == 0 and not contains_piece):
-            return True
-        elif(steps == 1 and result == 0 and not contains_piece):
-            return True
-        elif((result == -1 or result == 1) and steps == 1 and contains_piece):
-            return True
-        elif(result == 7 and steps == 2 and contains_piece):
-            return True
-        else: 
-            return False
+        if(dif_index == 7 or dif_index == 9):
+            if(isinstance(piece, chessPiece)):
+                if(self.is_reversed != piece.is_reversed):
+                    return True
 
+        elif((dif_index == 16 and self.first_move) or dif_index == 8):
+            if(not isinstance(piece, chessPiece)):
+                return True
+
+        return False
+        
