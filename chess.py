@@ -13,10 +13,11 @@ class Chess:
 
     def __initGame(self):
         self.__board.initBoard()
+        self.player1, self.player2 = [], []
 
     def __inputHandler(self):
         oldPos = input("Move From:")
-        if(not self.__board.validatePosition(oldPos)):
+        if(not self.__board.validPosition(oldPos)):
             self.draw(2)
             self.__inputHandler()
 
@@ -24,25 +25,21 @@ class Chess:
         self.draw()
 
         newPos = input("Move To:")
-        if(not self.__board.validatePosition(newPos, False)):
+        if(not self.__board.validPosition(newPos, False)):
             self.__board.toogleSelectPiece(oldPos)
             self.draw(2)
             self.__inputHandler()
             
         self.draw()
         self.__board.toogleSelectPiece(oldPos)
-        if(not self.__movePiece(oldPos, newPos)):
+        if(not self.__board.movePiecePosition(oldPos, newPos)):
             self.draw(2)
             self.__inputHandler()
         print("Moving to: " + newPos)
 
-    def __movePiece(self, oldPos, newPos):
-        return self.__board.movePiecePos(oldPos, newPos)
-
     def start(self):
         self.__initGame()
         self.update()
-       # self.__board.movePiecePos('a2', 'a4')
     
     def update(self):
         self.draw()

@@ -9,7 +9,7 @@ class Board:
     
     def __init__(self):
         self.__board = []
-        self.__board_positions = []
+        self.board_positions = []
         self.__horizontals = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
         self.__position_indexes = {
             "horizontal":0,
@@ -95,59 +95,67 @@ class Board:
 
     def __initBoardPieces(self):
         #Rooks
-        self.addPiece('a1', Rook('green')), self.addPiece('a8', Rook('grey'))
-        self.addPiece('h1', Rook('green')), self.addPiece('h8', Rook('grey'))
+        self.addPiece('a1', Rook('green')), self.addPiece('a8', Rook('grey').reverse())
+        self.addPiece('h1', Rook('green')), self.addPiece('h8', Rook('grey').reverse())
         # Knights
-        self.addPiece('b1', Knight('green')), self.addPiece('b8', Knight('grey'))
-        self.addPiece('g1', Knight('green')), self.addPiece('g8', Knight('grey'))
+        self.addPiece('b1', Knight('green')), self.addPiece('b8', Knight('grey').reverse())
+        self.addPiece('g1', Knight('green')), self.addPiece('g8', Knight('grey').reverse())
 
         # Bishops
-        self.addPiece('c1', Bishop('green')), self.addPiece('c8', Bishop('grey'))
-        self.addPiece('f1', Bishop('green')), self.addPiece('f8', Bishop('grey'))
+        self.addPiece('c1', Bishop('green')), self.addPiece('c8', Bishop('grey').reverse())
+        self.addPiece('f1', Bishop('green')), self.addPiece('f8', Bishop('grey').reverse())
 
         # Kings and Queens
-        self.addPiece('d1', Queen('green')),  self.addPiece('d8', Queen('grey'))
-        self.addPiece('e1', King('green')),   self.addPiece('e8', King('grey'))
+        self.addPiece('d1', Queen('green')),  self.addPiece('d8', Queen('grey').reverse())
+        self.addPiece('e1', King('green')),   self.addPiece('e8', King('grey').reverse())
 
         # Pawns
         self.addPiece('a2', Pawn('green')), self.addPiece('b2', Pawn('green')), self.addPiece('c2', Pawn('green')), self.addPiece('d2', Pawn('green'))
         self.addPiece('e2', Pawn('green')), self.addPiece('f2', Pawn('green')), self.addPiece('g2', Pawn('green')), self.addPiece('h2', Pawn('green'))
         
-        self.addPiece('a7', Pawn('grey')), self.addPiece('b7', Pawn('grey')), self.addPiece('c7', Pawn('grey')), self.addPiece('d7', Pawn('grey'))
-        self.addPiece('e7', Pawn('grey')), self.addPiece('f7', Pawn('grey')), self.addPiece('g7', Pawn('grey')), self.addPiece('h7', Pawn('grey'))
+        self.addPiece('a7', Pawn('grey').reverse()), self.addPiece('b7', Pawn('grey').reverse()), self.addPiece('c7', Pawn('grey').reverse()), self.addPiece('d7', Pawn('grey').reverse())
+        self.addPiece('e7', Pawn('grey').reverse()), self.addPiece('f7', Pawn('grey').reverse()), self.addPiece('g7', Pawn('grey').reverse()), self.addPiece('h7', Pawn('grey').reverse())
 
     def initBoard(self):
         self.__horizontals
         color_counter = 0
+
         for v in range(1,9):
             for h in self.__horizontals:
                 if color_counter % 2 == 0:
                     self.__board.append([h, str(v), colored("x", 'red'), None])
-                    self.__board_positions.append(h + str(v))
+                    self.board_positions.append(h + str(v))
                 else:
                     self.__board.append([h, str(v), colored('+', 'blue'), None])
-                    self.__board_positions.append(h + str(v))
+                    self.board_positions.append(h + str(v))
                 color_counter +=1
             if color_counter % 2 != 1:
                 color_counter = 1
             else:
                 color_counter = 0
+            
         self.__initBoardPieces()
 
     def addPiece(self, position, piece):
         self.__board[self.positionToIndex(position)][self.__position_indexes.get("piece")] = piece      
 
-    def validatePosition(self, position, isPiece = True):
-        if(position not in self.__board_positions):
+    def removePieceByPosition(self, position):
+        self.__board[self.positionToIndex(position)][self.__position_indexes.get("piece")] = None
+
+    def removePieceByName(self, piece):
+        pass
+
+    def validPosition(self, position, piece_on_position = True):
+        if(position not in self.board_positions):
             print("Must select a real position")
             return False  
 
-        if(not isinstance(self.__board[self.positionToIndex(position)][self.__position_indexes.get("piece")], chessPiece) and isPiece):
+        if(not isinstance(self.__board[self.positionToIndex(position)][self.__position_indexes.get("piece")], chessPiece) and piece_on_position):
             print("Must select a chess piece")
             return False
         return True
 
-    def movePiecePos(self, current_position, new_position):
+    def movePiecePosition(self, current_position, new_position):
 
         if(current_position == new_position):
             print("cannot move to same location")
@@ -156,23 +164,16 @@ class Board:
         current_position_index = self.positionToIndex(current_position)
         new_position_index = self.positionToIndex(new_position)
 
-        if(self.__board[current_position_index][self.__position_indexes.get("piece")].isValidMove()):
+        if(not self.__board[current_position_index][self.__position_indexes.get("piece")].isValidMove(current_position_index, new_position_index, self.__board)):
             print("Cannot move " + self.__board[current_position_index][self.__position_indexes.get("piece")].name + " to: " + new_position)
             return False
 
             
         self.__board[new_position_index][self.__position_indexes.get("piece")] = self.__board[current_position_index][self.__position_indexes.get("piece")]
+        self.__board[new_position_index][self.__position_indexes.get("piece")].first_move = False
         self.__board[current_position_index][self.__position_indexes.get("piece")] = None
             
         return True
-
-
-
-    def removePieceByPosition(self, position):
-        self.__board[self.positionToIndex(position)][self.__position_indexes.get("piece")] = None
-
-    def removePieceByName(self, piece):
-        pass
 
     def toogleSelectPiece(self, position):
         
