@@ -16,12 +16,20 @@ class Chess:
         self.player1, self.player2 = [], []
 
     def __inputHandler(self):
-        oldPos = input("Input:")
+        oldPos = str(input("Input:"))
+
+        if (oldPos == ''):
+            self.draw()
+            self.__inputHandler()
+
+        self.__board.getValidMovesOfPosition(oldPos)
+
 
         if(oldPos == "R"):
             self.__board = Board()
             self.__initGame()
-            
+
+
 
         if(not self.__board.validPosition(oldPos)):
             self.draw(2)
