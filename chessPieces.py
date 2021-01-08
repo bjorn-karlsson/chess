@@ -19,33 +19,23 @@ class chessPiece:
 
     def displayOnBoard(self):
         if(self.selected):
-            return colored(self.symbol + " ", self.color, attrs=['bold'])
+            return colored(self.symbol + " ", self.color, attrs=['reverse', 'bold'])
         else: 
             return colored(self.symbol + " ", self.color)
 
     def isValidMove(self, cur_index, new_index, movements, board, max_steps = False):
-
+        
         dif_index = new_index - cur_index
         reversed_check = 1
         if(dif_index < 0):
             reversed_check = -1
         dif_index = dif_index * reversed_check
-
         #Check if valid Movement
         result_value = 0
         for moves in movements:
             if(dif_index % moves == 0):
                 if(moves == 1 and board[new_index][1] != board[cur_index][1]):
-                    #print("curi: ", cur_index)
-                    #print("newi: ", new_index)
-                    #print("difi: ", dif_index)
-                    #print("moves: ", moves)
-                    #print("res: ", dif_index % moves)
-                    #print("new:", board[new_index][0])
-                    #print("cur:", board[cur_index][0])
-                    #input()
                     return False
-                    #break
                 result_value = moves
                 break
         
@@ -56,38 +46,53 @@ class chessPiece:
             return False
         
         results = self.collision2(int(dif_index / result_value), new_index, cur_index, result_value, reversed_check, board)
-        #print(results)
-        #input()
+        #print(new_index)
+
+        ##FIX QUEEN BUG##
+
+        if(new_index == 56):
+            print(board[new_index])
+            print(results)
+            input()
+
         if(not results):
             return True
-
-        if(isinstance(results[3], chessPiece) 
-        and results[3].is_reversed != self.is_reversed
-        and results[3] == board[new_index][3]):
-            return True
-
+        try:
+            if(isinstance(results[3], chessPiece) 
+            and results[3].is_reversed != self.is_reversed
+            and results[3] == board[new_index][3]):
+                return True
+        except IndexError:
+            print("INVALID INDEX:", new_index)
+            input()
+            return False
         return False
 
     def getValidMoves(self, cur_index, board):
-        #all_moves = self.getAllMoves()
-        #valid_moves = []
+        all_moves = self.getAllMoves()
+        valid_moves = []
         #valid_indexes = []
-        #for move in all_moves:
-        #    new_index = cur_index + move
-        #    if(new_index < 0 or new_index > 63):
-        #        continue
-        #    while (self.isValidMove(cur_index, new_index, board)):
-        #        if(new_index < 0 or new_index > 63):
-        #            break
-        #        print("\nMove:", move)
-        #        print("CurI:", cur_index)
-        #        print("newI:", new_index)
-        #        
-        #        print("Valid:", self.isValidMove(cur_index, new_index, board))
-        #        input()
-        #        new_index = new_index + move
-        #return valid_moves
-        pass
+        for move in all_moves:
+            new_index = cur_index + move
+            if(new_index < 0 or new_index > 63):
+                continue
+            while (self.isValidMove(cur_index, new_index, board)):
+                if(new_index < 0 or new_index > 63):
+                    break
+                #valid_indexes.append(new_index)
+                valid_moves.append(board[new_index][0] + board[new_index][1])
+                #print("\nMove:", move)
+                #print("CurI:", cur_index)
+                #print("newI:", new_index)
+                
+                #print("Valid:", self.isValidMove(cur_index, new_index, board))
+                #input()
+                new_index = new_index + move
+        
+        #print(valid_moves)
+        #input()
+        return valid_moves
+        
          
 
     def getAllMoves(self):
@@ -100,8 +105,12 @@ class chessPiece:
     def collision2(self, times, new_index, current_index, directional_index, reverse_constant, board):
         prev_index = 0
         for v in range(times):     
-            current_index = current_index + (directional_index * reverse_constant) 
             
+            current_index = current_index + (directional_index * reverse_constant) 
+
+            if(current_index > 63 or current_index < 0):
+                return False
+
             prev_index = current_index - (directional_index * reverse_constant)
             prev_horizontal = self.horizontals.index(board[prev_index][0])
             cur_horizontal = self.horizontals.index(board[current_index][0])
@@ -113,17 +122,23 @@ class chessPiece:
             if(vertical_dif < 0): vertical_dif = vertical_dif * -1
             if(horizontal_dif < 0): horizontal_dif = horizontal_dif * -1
 
-            #print("prev_pos:", board[prev_index][0],  board[prev_index][1])
-            #print("ph:", prev_horizontal)
-            #print("pv:", prev_vertical, "\n")
-            #print("cur_pos:", board[current_index][0],  board[current_index][1])
-            #print("ch:", cur_horizontal)
-            #print("cv:", cur_vertical, "\n")
-            #print("diffh:", horizontal_dif)
-            #print("diffv:", vertical_dif)
-            #input()
+
+
             if(horizontal_dif > 1 or vertical_dif > 1):
                 return board[prev_index]
+
+            if(board[current_index][0] == "a" and board[current_index][1] == "8"):
+                print(board[current_index])           
+                print("prev_pos:", board[prev_index][0],  board[prev_index][1])
+                print("ph:", prev_horizontal)
+                print("pv:", prev_vertical, "\n")
+                print("cur_pos:", board[current_index][0],  board[current_index][1])
+                print("ch:", cur_horizontal)
+                print("cv:", cur_vertical, "\n")
+                print("diffh:", horizontal_dif)
+                print("diffv:", vertical_dif)
+                print(directional_index * reverse_constant)
+                input()
             #print("cur:", current_index)
             #print("new:", new_index)
             #print("prev", prev_index)
@@ -172,15 +187,17 @@ class chessPiece:
 class King(chessPiece):
     def __init__(self, color):
        super().__init__('K', color, "King")
-       self.moves = [7, 9, 8, 1]
+       self.moves = [9, 7, 8, 1]
     def isValidMove(self, cur_index, new_index, board):
         return super().isValidMove(cur_index, new_index, self.moves, board, 1)
 class Queen(chessPiece):
     def __init__(self, color):
         super().__init__('Q', color, "Queen")
-        self.moves = [7, 9, 8, 1]
+        self.moves = [9, 7, 8, 1]
     def isValidMove(self, cur_index, new_index, board):
         return super().isValidMove(cur_index, new_index, self.moves, board)
+            
+
 class Rook(chessPiece):
     def __init__(self, color):
         super().__init__('r', color, "Rook")

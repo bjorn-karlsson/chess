@@ -3,8 +3,18 @@ from termcolor import colored, cprint
 
 from chessPieces import *
 
+class Place:
 
+    def __init__(self, symbol, color):
+        self.symbol = symbol
+        self.color = color
+        self.selected = False
 
+    def displayOnBoard(self):
+        if(self.selected):
+            return colored(self.symbol + " ", self.color, attrs=['bold'])
+        else: 
+            return colored(self.symbol + " ", self.color)
 class Board:
     
     def __init__(self):
@@ -28,19 +38,19 @@ class Board:
                     if(isinstance(place[self.position_indexes.get("piece")], chessPiece)):
                         output += place[self.position_indexes.get("vertical")] + " " + place[self.position_indexes.get("piece")].displayOnBoard()
                     else:
-                        output += place[self.position_indexes.get("vertical")] + " " + place[self.position_indexes.get("place")] + " "
+                        output += place[self.position_indexes.get("vertical")] + " " + place[self.position_indexes.get("place")].displayOnBoard()
                 else:
                     if(isinstance(place[self.position_indexes.get("piece")], chessPiece)):
                         output += place[self.position_indexes.get("piece")].displayOnBoard()
                     else: 
-                        output += place[self.position_indexes.get("place")] + " "
+                        output += place[self.position_indexes.get("place")].displayOnBoard()
 
                 count += 1
             else:
                 if(isinstance(place[self.position_indexes.get("piece")], chessPiece)):
                     output += place[self.position_indexes.get("piece")].displayOnBoard()  + place[self.position_indexes.get("vertical")] + "\n"
                 else:
-                    output += place[self.position_indexes.get("place")] + " " + place[self.position_indexes.get("vertical")] + "\n"
+                    output += place[self.position_indexes.get("place")].displayOnBoard() + place[self.position_indexes.get("vertical")] + "\n"
                 count = 1
 
 
@@ -86,6 +96,9 @@ class Board:
 
     # Adds pieces to the board
     def __initBoardPieces(self):
+        self.addPiece('a1', Queen('green'))
+        #self.addPiece('h8', Rook('green'))
+        return 
         #Rooks
         self.addPiece('a1', Rook('green')), self.addPiece('a8', Rook('yellow').reverse())
         self.addPiece('h1', Rook('green')), self.addPiece('h8', Rook('yellow').reverse())
@@ -117,10 +130,10 @@ class Board:
         for v in range(1,9):
             for h in self.horizontals:
                 if color_counter % 2 == 0:
-                    self.__board.append([h, str(v), colored("x", 'red'), None])
+                    self.__board.append([h, str(v), Place("x", 'red'), None])
                     self.board_positions.append(h + str(v))
                 else:
-                    self.__board.append([h, str(v), colored('+', 'blue'), None])
+                    self.__board.append([h, str(v), Place('+', 'blue'), None])
                     self.board_positions.append(h + str(v))
                 color_counter +=1
             if color_counter % 2 != 1:
@@ -151,9 +164,10 @@ class Board:
         return True
         
     def getValidMovesOfPosition(self, position):
-        if(isinstance(self.__board[self.positionToIndex(position)][self.position_indexes.get("piece")], chessPiece)):
-            print (self.__board[self.positionToIndex(position)][self.position_indexes.get("piece")].getValidMoves(self.positionToIndex(position), self.__board))
-
+        if(position in self.board_positions):
+            if(isinstance(self.__board[self.positionToIndex(position)][self.position_indexes.get("piece")], chessPiece)):
+                return self.__board[self.positionToIndex(position)][self.position_indexes.get("piece")].getValidMoves(self.positionToIndex(position), self.__board)
+        return []
     # Try to move a selected piece from current position to a new position
     def movePiecePosition(self, current_position, new_position):
 
@@ -175,10 +189,15 @@ class Board:
         return True
 
     # Toogles the highlight of given positions chess piece
-    def toogleSelectPiece(self, position): 
-        if(isinstance(self.__board[self.positionToIndex(position)][self.position_indexes.get("piece")], chessPiece)):
-            self.__board[self.positionToIndex(position)][self.position_indexes.get("piece")].selected = not self.__board[self.positionToIndex(position)][self.position_indexes.get("piece")].selected
-   
+    def toogleSelectedPieces(self, positions): 
+        if(not isinstance(positions, list)):
+            positions = [positions]
+        for position in positions:
+            if(isinstance(self.__board[self.positionToIndex(position)][self.position_indexes.get("piece")], chessPiece)):
+                self.__board[self.positionToIndex(position)][self.position_indexes.get("piece")].selected = not self.__board[self.positionToIndex(position)][self.position_indexes.get("piece")].selected
+            else:
+                self.__board[self.positionToIndex(position)][self.position_indexes.get("place")].selected = not self.__board[self.positionToIndex(position)][self.position_indexes.get("place")].selected
+    
     def getBoardByIndexOfPosition(self, index):
         return self.__board[index][self.position_indexes.get("piece")]
 

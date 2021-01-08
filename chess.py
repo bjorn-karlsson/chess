@@ -22,30 +22,35 @@ class Chess:
             self.draw()
             self.__inputHandler()
 
-        self.__board.getValidMovesOfPosition(oldPos)
-
-
         if(oldPos == "R"):
             self.__board = Board()
             self.__initGame()
 
+        valid_moves = self.__board.getValidMovesOfPosition(oldPos)
+
+        
+        self.__board.toogleSelectedPieces(valid_moves)
 
 
         if(not self.__board.validPosition(oldPos)):
             self.draw(2)
             return self.__inputHandler()
 
-        self.__board.toogleSelectPiece(oldPos)
+        self.__board.toogleSelectedPieces(oldPos)
         self.draw()
 
         newPos = input("Move To:")
         if(not self.__board.validPosition(newPos, False)):
-            self.__board.toogleSelectPiece(oldPos)
+            self.__board.toogleSelectedPieces(oldPos)
+            self.__board.toogleSelectedPieces(valid_moves)
             self.draw(2)
             return self.__inputHandler()
             
         self.draw()
-        self.__board.toogleSelectPiece(oldPos)
+        self.__board.toogleSelectedPieces(oldPos)
+        if(len(valid_moves) > 0):
+            self.__board.toogleSelectedPieces(valid_moves)
+    
         if(not self.__board.movePiecePosition(oldPos, newPos)):
             self.draw(2)
             return self.__inputHandler()
