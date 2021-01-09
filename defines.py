@@ -1,0 +1,6 @@
+HORIZONTAL_INDEX = 0
+VERTICAL_INDEX = 1
+PLACE_INDEX = 2
+PIECE_INDEX = 3
+
+HORIZONTAL_VALUES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']

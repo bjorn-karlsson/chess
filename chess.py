@@ -27,7 +27,6 @@ class Chess:
             self.__initGame()
 
         valid_moves = self.__board.getValidMovesOfPosition(oldPos)
-
         
         self.__board.toogleSelectedPieces(valid_moves)
 
