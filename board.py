@@ -16,9 +16,14 @@ class Place:
 
 class Board:
 
-    def __init__(self):
+    def __init__(self, player_color1, player_color2, color1 = 'red' , color2 = 'blue'):
         self.__board = []
         self.board_positions = []
+        self.player_color1 = player_color1
+        self.player_color2 = player_color2
+        self.color1 = color1 
+        self.color2 = color2
+
     def __str__(self):
         if len(self.__board) != 64:
                 return ""
@@ -54,66 +59,32 @@ class Board:
         for place in CONST.HORIZONTAL_VALUES:
             output += " " + place 
         return output     
-    def old__str__(self):
-        if len(self.__board) != 64:
-            return ""
-        output = "\n "
-        for place in CONST.HORIZONTAL_VALUES:
-            output += " " + place 
-        output += "\n"
-        count = 0
-        for place in self.__board:
-
-            if(count < 8):
-                if (count == 0):
-                    output += place[CONST.VERTICAL_INDEX] + " "
-                if(isinstance(place[CONST.PIECE_INDEX], chessPiece)):
-                    output += place[CONST.PIECE_INDEX].displayOnBoard()
-                else:
-                    output += place[CONST.PLACE_INDEX] + " "
-                
-            else:
-                
-                output += '\n' + place[CONST.VERTICAL_INDEX] + " "
-                
-                if(isinstance(place[CONST.PIECE_INDEX], chessPiece)):
-                    output += place[CONST.PIECE_INDEX].displayOnBoard()
-                else:
-                    output += place[CONST.PLACE_INDEX] + " "
-                count = 0
-
-            count += 1
-
-
-        output += "\n "
-        for place in CONST.HORIZONTAL_VALUES:
-            output += " " + place 
-        return output
 
     # Adds pieces to the board
     def __initBoardPieces(self):
-        
+        #self.addPiece('a8', Knight(self.player_color1))
+
         #Rooks
-        self.addPiece('a1', Rook('green')), self.addPiece('a8', Rook('yellow').reverse())
-        self.addPiece('h1', Rook('green')), self.addPiece('h8', Rook('yellow').reverse())
+        self.addPiece('a1', Rook(self.player_color1)), self.addPiece('a8', Rook(self.player_color2).reverse())
+        self.addPiece('h1', Rook(self.player_color1)), self.addPiece('h8', Rook(self.player_color2).reverse())
         # Knights
-        self.addPiece('b1', Knight('green')), self.addPiece('b8', Knight('yellow').reverse())
-        self.addPiece('g1', Knight('green')), self.addPiece('g8', Knight('yellow').reverse())
+        self.addPiece('b1', Knight(self.player_color1)), self.addPiece('b8', Knight(self.player_color2).reverse())
+        self.addPiece('g1', Knight(self.player_color1)), self.addPiece('g8', Knight(self.player_color2).reverse())
 
         # Bishops
-        self.addPiece('c1', Bishop('green')), self.addPiece('c8', Bishop('yellow').reverse())
-        self.addPiece('f1', Bishop('green')), self.addPiece('f8', Bishop('yellow').reverse())
+        self.addPiece('c1', Bishop(self.player_color1)), self.addPiece('c8', Bishop(self.player_color2).reverse())
+        self.addPiece('f1', Bishop(self.player_color1)), self.addPiece('f8', Bishop(self.player_color2).reverse())
 
         # Kings and Queens
-        self.addPiece('d1', Queen('green')),  self.addPiece('d8', Queen('yellow').reverse())
-        self.addPiece('e1', King('green')),   self.addPiece('e8', King('yellow').reverse())
+        self.addPiece('d1', Queen(self.player_color1)),  self.addPiece('d8', Queen(self.player_color2).reverse())
+        self.addPiece('e1', King(self.player_color1)),   self.addPiece('e8', King(self.player_color2).reverse())
 
         # Pawns
-        self.addPiece('a2', Pawn('green')), self.addPiece('b2', Pawn('green')), self.addPiece('c2', Pawn('green')), self.addPiece('d2', Pawn('green'))
-        self.addPiece('e2', Pawn('green')), self.addPiece('f2', Pawn('green')), self.addPiece('g2', Pawn('green')), self.addPiece('h2', Pawn('green'))
+        self.addPiece('a2', Pawn(self.player_color1)), self.addPiece('b2', Pawn(self.player_color1)), self.addPiece('c2', Pawn(self.player_color1)), self.addPiece('d2', Pawn(self.player_color1))
+        self.addPiece('e2', Pawn(self.player_color1)), self.addPiece('f2', Pawn(self.player_color1)), self.addPiece('g2', Pawn(self.player_color1)), self.addPiece('h2', Pawn(self.player_color1))
         
-        self.addPiece('a7', Pawn('yellow').reverse()), self.addPiece('b7', Pawn('yellow').reverse()), self.addPiece('c7', Pawn('yellow').reverse()), self.addPiece('d7', Pawn('yellow').reverse())
-        self.addPiece('e7', Pawn('yellow').reverse()), self.addPiece('f7', Pawn('yellow').reverse()), self.addPiece('g7', Pawn('yellow').reverse()), self.addPiece('h7', Pawn('yellow').reverse())
+        self.addPiece('a7', Pawn(self.player_color2).reverse()), self.addPiece('b7', Pawn(self.player_color2).reverse()), self.addPiece('c7', Pawn(self.player_color2).reverse()), self.addPiece('d7', Pawn(self.player_color2).reverse())
+        self.addPiece('e7', Pawn(self.player_color2).reverse()), self.addPiece('f7', Pawn(self.player_color2).reverse()), self.addPiece('g7', Pawn(self.player_color2).reverse()), self.addPiece('h7', Pawn(self.player_color2).reverse())
 
     # Creates the 8x8 chess board
     # real examples: board = [["a", "1", "x", Rook], ["b", "1", "+", Knight] ... ["h", "6", "x", None], ["a", "7", "x", Pawn]]
@@ -124,10 +95,10 @@ class Board:
         for v in range(1,9):
             for h in CONST.HORIZONTAL_VALUES:
                 if color_counter % 2 == 0:
-                    self.__board.append([h, str(v), Place("x", 'red'), None])
+                    self.__board.append([h, str(v), Place("x", self.color1), None])
                     self.board_positions.append(h + str(v))
                 else:
-                    self.__board.append([h, str(v), Place('+', 'blue'), None])
+                    self.__board.append([h, str(v), Place('+', self.color2), None])
                     self.board_positions.append(h + str(v))
                 color_counter +=1
             if color_counter % 2 != 1:
@@ -148,11 +119,11 @@ class Board:
     # chech if position is a real (and a piece), ex: "a1" is inside the board and "a1" is Chess Piece
     def validPosition(self, position, check_for_piece = True):
         if(position not in self.board_positions):
-            print("Must select a real position")
+            #print("Must select a real position")
             return False  
 
         if(not isinstance(self.__board[self.positionToIndex(position)][CONST.PIECE_INDEX], chessPiece) and check_for_piece):
-            print("Must select a chess piece")
+            #print("Must select a chess piece")
             return False
     
         return True
@@ -166,14 +137,14 @@ class Board:
     def movePiecePosition(self, current_position, new_position):
 
         if(current_position == new_position):
-            print("cannot move to same location")
+            #print("cannot move to same location")
             return False
 
         current_position_index = self.positionToIndex(current_position)
         new_position_index = self.positionToIndex(new_position)
 
         if(not self.__board[current_position_index][CONST.PIECE_INDEX].isValidMove(current_position_index, new_position_index, self.__board)):
-            print("Cannot move " + self.__board[current_position_index][CONST.PIECE_INDEX].name + " to: " + new_position)
+            #print("Cannot move " + self.__board[current_position_index][CONST.PIECE_INDEX].name + " to: " + new_position)
             return False
 
         self.__board[current_position_index][CONST.PIECE_INDEX].first_move = False
@@ -181,6 +152,17 @@ class Board:
         self.__board[current_position_index][CONST.PIECE_INDEX] = None
             
         return True
+
+    def isCheckMate(self):
+        pass
+
+    def isMate(self, player_number):
+        if(player_number == 1):
+            pass
+        elif(player_number == -1):
+            pass
+
+        pass
 
     # Toogles the highlight of given positions chess piece
     def toogleSelectedPieces(self, positions): 
