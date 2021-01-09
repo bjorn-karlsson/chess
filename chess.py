@@ -108,7 +108,7 @@ class Chess:
         self.update()
 
     def beginTurn(self):
-        return self.____first_player
+        return self.__first_player
 
     def switchTurn(self, player):
         if(self.__first_player == player):
