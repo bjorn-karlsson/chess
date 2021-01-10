@@ -59,17 +59,28 @@ class Board:
         output += " "
         for place in CONST.HORIZONTAL_VALUES:
             output += " " + place 
-        return output     
+        
+        return output
 
     # Adds pieces to the board
     def __initBoardPieces(self):
-        #self.addPiece('a7', Rook(self.player_color1))
-        #self.addPiece('b7', Rook(self.player_color1))
+
+        #PROMOTION 
         #self.addPiece('e8', King(self.player_color2).reverse())
-        #self.addPiece('e4', Bishop(self.player_color2).reverse())
-        #self.addPiece('e3', Knight(self.player_color2).reverse())
-        #self.addPiece('d2', Rook(self.player_color2).reverse())
-        #self.addPiece('h1', King(self.player_color1))
+        #self.addPiece('e1', King(self.player_color1))
+#
+        #self.addPiece('b5', Pawn(self.player_color1))
+        #self.addPiece('c4', Pawn(self.player_color2).reverse())
+        #return
+
+        ## CASTLING 
+        #self.addPiece('a8', Rook(self.player_color1))
+        #self.addPiece('h8', Rook(self.player_color1))
+        #self.addPiece('e8', King(self.player_color1))
+
+        #self.addPiece('a8', Rook(self.player_color1).reverse())
+        #self.addPiece('h8', Rook(self.player_color1).reverse())
+        #self.addPiece('e8', King(self.player_color1).reverse())
         #return 
         #Rooks
         self.addPiece('a1', Rook(self.player_color1)), self.addPiece('a8', Rook(self.player_color2).reverse())
@@ -182,6 +193,23 @@ class Board:
             if(isinstance(place[CONST.PIECE_INDEX], King)
             and is_reversed == place[CONST.PIECE_INDEX].is_reversed):
                 return place[CONST.HORIZONTAL_INDEX] + place[CONST.VERTICAL_INDEX]
+            
+        
+        raise Exception('NoKingFound', f'No king found for player({player_delimiter})')
+        
+    def promotionAvailable(self, player_delimiter):
+        
+        pawn_positions = self.getPositionsByPieces(list(filter(lambda piece: isinstance(piece, Pawn), self.getPieces(player_delimiter))))
+        pawn_promotions = []
+        for pawn_position in pawn_positions:
+            if(self.getValidMovesOfPosition(pawn_position) == [] 
+            and ((self.positionToIndex(pawn_position) + 8) > 63 
+            or (self.positionToIndex(pawn_position) - 8) < 0)):
+                pawn_promotions.append(pawn_position)
+        if(pawn_promotions != []):
+            return pawn_promotions
+
+        return False
 
     def movePiecePosition(self, current_position, new_position, get_replaced = False):
 
@@ -256,8 +284,8 @@ class Board:
                 #input()
                 if(not self.isMate(attacking_player_positions, king_position)):
                     #self.movePiecePosition(defending_player_move, defending_player_piece_position)
-                    print(self.__str__())
-                    input()
+                    #print(self.__str__())
+                    #input()
                     self.__board = deepcopy(copy_of_board)
                     
                     return False
@@ -274,7 +302,9 @@ class Board:
     def isMate(self, player_piece_positions, king_position, board = False):
         #print("isMate?")
         #print("attacking:" , player_piece_positions)
+        ##print("king:" , king_position)
         #print("king:" , king_position)
+        #print("e7", self.__board[self.positionToIndex("e7")])
         #input()
         if(not board):
             board = self.__board

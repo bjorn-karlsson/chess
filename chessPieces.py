@@ -264,6 +264,7 @@ class Pawn(chessPiece):
 
         collision = self.collision(int(dif_index / dif_index), new_index, cur_index, dif_index, 1, board)
 
+
         if(not collision and assets.isOdd(dif_index)):
             return False
         elif(not collision and assets.isEven(dif_index)):

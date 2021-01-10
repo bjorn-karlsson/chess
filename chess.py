@@ -11,6 +11,7 @@ class Player:
         self.team = team
         self.color = color
         self.check_mate = False
+        self.mate = False
         self.turn = False
         self.piece_positions = []
 
@@ -21,6 +22,7 @@ class Chess:
     ERROR_MESSAGE_POSITION = "is an invalid location"
     ERROR_MESSAGE_MOVING = "unable to move to :"
 
+    CONTINUTE_MESSAGE = "Press enter to continue..."
     
 
     def __init__(self):
@@ -34,8 +36,8 @@ class Chess:
         return self.__board.__str__()
 
     def restart(self):
-        self.__board = Board(self.__first_player.color, self.__second_player.color)
-        self.__initGame()    
+        self.__init__()
+        self.start() 
 
     def __initGame(self):
         self.__board.initBoard()
@@ -112,6 +114,7 @@ class Chess:
             return self.__gameInputHandler()
         self.draw()
         self.updatePlayerPiecePositions(self.current_player)
+        self.updatePlayerPiecePositions(self.waiting_player)
         #print("Moving to: " + move_to)
 
     def start(self):
@@ -144,28 +147,65 @@ class Chess:
     
         return self.current_player
 
+    def checkForMateAndCheckMate(self, player1, player2):
+        if(self.__board.isMate(player1.piece_positions, self.__board.getKingPosition(player2.team))):
+            if(player2.mate):
+                self.draw()
+                print(colored("Check Mate... ", "red") + colored(f"Player{player2.team}", player2.color) + colored(" lost the game...", "red"))
+                input(Chess.CONTINUTE_MESSAGE)
+                player2.check_mate = True
+                return player2
+            if(self.__board.isCheckMate(player1.piece_positions, player2.piece_positions, self.__board.getKingPosition(player2.team))):
+                self.draw()
+                print(colored("Check Mate... ", "red") + colored(f"Player{player2.team}", player2.color) + colored(" lost the game...", "red"))
+                input(Chess.CONTINUTE_MESSAGE)
+                player2.check_mate = True
+                return player2
+            else:
+                player2.mate = True
+                self.draw()
+                print(colored("Mate!", player2.color))
+                input(Chess.CONTINUTE_MESSAGE)
+        else:
+            player2.mate = False
 
+    def checkForPromotion(self, player):
+        result = self.__board.promotionAvailable(player.team)
+
+        if(result):
+            print(f"player{player.team}'s Pawn on {result[0]} got promoted")
+            self.draw(2.5)
+            if(player.team == 1):
+                self.__board.addPiece(result[0], Queen(self.__board.player_color1))
+            elif(player.team == 2):
+                self.__board.addPiece(result[0], Queen(self.__board.player_color2).reverse())
+            return result
+        return False
     def update(self):
         self.beginTurn()
         #print(self.current_player.piece_positions)
         #input()
         self.draw()
         while(not self.__first_player.check_mate and not self.__second_player.check_mate):
+            
             result = self.__gameInputHandler()
-            if(self.__board.isMate(self.current_player.piece_positions, self.__board.getKingPosition(self.waiting_player.team))):
-                if(self.__board.isCheckMate(self.current_player.piece_positions, self.waiting_player.piece_positions, self.__board.getKingPosition(self.waiting_player.team))):
-                    print("Game over...")
-                    input()
-                else:
-                    print("Mate!")
-                    input()
+
+            ## CHECK FOR PAWN PROMOTIONS
+            self.checkForPromotion(self.current_player)
+            #self.checkForPromotion(self.waiting_player)
+
+            ## CHECK IF GAME IS OVER or JUST MATE
+            self.checkForMateAndCheckMate(self.current_player, self.waiting_player)
+            self.checkForMateAndCheckMate(self.waiting_player, self.current_player)
+            
 
             self.switchTurn()
             self.draw()
 
+        self.restart()
+        
     def draw(self, wait = 0):
-        sleep(wait)
-        system('cls')
+        self.clear(wait)
         print(self)
     
     def clear(self, wait = 0):
