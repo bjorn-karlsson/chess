@@ -7,12 +7,13 @@ from board import *
 
 class Player:
 
-    def __init__(self, name, number, color):
+    def __init__(self, name, team, color):
         self.name = name
-        self.side = number
+        self.team = team
         self.color = color
         self.check_mate = False
         self.turn = False
+        self.piece_positions = []
 
 
 class Chess:
@@ -26,6 +27,8 @@ class Chess:
     def __init__(self):
         self.__first_player = Player("Bob", 1, "green")
         self.__second_player = Player("Bot", 2, "yellow")
+        self.current_player = None
+        self.waiting_player = None
         self.__board = Board(self.__first_player.color, self.__second_player.color)
 
     def __str__(self):
@@ -75,7 +78,15 @@ class Chess:
         self.draw(seconds)
 
     def __gameInputHandler(self):
+
+        self.updatePlayerPiecePositions(self.current_player)
+
+        self.__toggleSelectedPositions(self.current_player.piece_positions, False, True)
+
         move_from = self.__getInput("Move from: ")
+        
+        self.__toggleSelectedPositions(self.current_player.piece_positions, False, True)
+
         if(not self.__checkInput(move_from)):
             return False
 
@@ -100,35 +111,53 @@ class Chess:
         if(not self.__board.movePiecePosition(move_from, move_to)):
             self.__displayErrorMessage(Chess.ERROR_MESSAGE_MOVING + f" [{move_to}] ")
             return self.__gameInputHandler()
-
+        self.draw()
+        self.updatePlayerPiecePositions(self.current_player)
         #print("Moving to: " + move_to)
 
     def start(self):
         self.__initGame()
         self.update()
 
+    def updatePlayerPiecePositions(self, players):
+        if(not isinstance(players, list)):
+            players = [players]
+
+        for player in players:
+            player.piece_positions = self.__board.getPositionsByPieces(self.__board.getPieces(player.team))
+
+        return True
+
     def beginTurn(self):
+        self.updatePlayerPiecePositions([self.__first_player, self.__second_player])
+        self.current_player = self.__first_player
+        self.waiting_player = self.__second_player
         return self.__first_player
 
-    def switchTurn(self, player):
-        if(self.__first_player == player):
-            player = self.__second_player
-        else:
-            player = self.__first_player
+    def switchTurn(self):
 
-        return player
+        if(self.__first_player == self.current_player):
+            self.current_player = self.__second_player
+            self.waiting_player = self.__first_player
+        else:
+            self.current_player = self.__first_player
+            self.waiting_player = self.__second_player
+    
+        return self.current_player
 
 
     def update(self):
-        player = self.beginTurn()
+        self.beginTurn()
+        #print(self.current_player.piece_positions)
+        #input()
         self.draw()
         while(not self.__first_player.check_mate and not self.__second_player.check_mate):
-            input = self.__gameInputHandler()
-            if(self.__board.isMate()):
-                if(self.__board.isCheckMate()):
+            result = self.__gameInputHandler()
+            if(self.__board.isMate(self.current_player.piece_positions, self.__board.getKingPosition(self.waiting_player.team))):
+                if(self.__board.isCheckMate(self.current_player.piece_positions, self.waiting_player.piece_positions, self.__board.getKingPosition(self.waiting_player.team))):
                     pass
 
-            player = self.switchTurn(player)
+            self.switchTurn()
             self.draw()
 
     def draw(self, wait = 0):

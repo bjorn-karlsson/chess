@@ -62,8 +62,10 @@ class Board:
 
     # Adds pieces to the board
     def __initBoardPieces(self):
-        #self.addPiece('a8', Knight(self.player_color1))
-
+        #self.addPiece('a1', Rook(self.player_color1))
+        #self.addPiece('h8', King(self.player_color2).reverse())
+        #self.addPiece('h2', King(self.player_color1))
+        #return 
         #Rooks
         self.addPiece('a1', Rook(self.player_color1)), self.addPiece('a8', Rook(self.player_color2).reverse())
         self.addPiece('h1', Rook(self.player_color1)), self.addPiece('h8', Rook(self.player_color2).reverse())
@@ -134,7 +136,50 @@ class Board:
                 return self.__board[self.positionToIndex(position)][CONST.PIECE_INDEX].getValidMoves(self.positionToIndex(position), self.__board)
         return []
     # Try to move a selected piece from current position to a new position
-    def movePiecePosition(self, current_position, new_position):
+
+    def getPositionByPiece(self, piece):
+        for place in self.__board:
+            if(place[CONST.PIECE_INDEX] == piece):
+                return place[CONST.HORIZONTAL_INDEX] + place[CONST.VERTICAL_INDEX]
+
+    def getPositionsByPieces(self, pieces):
+        positions = []
+        for piece in pieces:
+            positions.append(self.getPositionByPiece(piece))
+        return positions
+
+    def getPieces(self, player_delimiter):
+        is_reversed = bool
+        if(player_delimiter == 1):
+            is_reversed = False
+        elif(player_delimiter == 2):
+            is_reversed = True
+        else:
+            return []
+        pieces = []
+
+        for place in self.__board:
+            if(isinstance(place[CONST.PIECE_INDEX], chessPiece)
+            and is_reversed == place[CONST.PIECE_INDEX].is_reversed):
+                pieces.append(place[CONST.PIECE_INDEX])
+        return pieces
+
+    def getKingPosition(self, player_delimiter):
+        is_reversed = bool
+        if(player_delimiter == 1):
+            is_reversed = False
+        elif(player_delimiter == 2):
+            is_reversed = True
+        else:
+            return None
+        for place in self.__board:
+            if(isinstance(place[CONST.PIECE_INDEX], King)
+            and is_reversed == place[CONST.PIECE_INDEX].is_reversed):
+                return place[CONST.HORIZONTAL_INDEX] + place[CONST.VERTICAL_INDEX]
+
+    def movePiecePosition(self, current_position, new_position, board = False):
+        if(not board):
+            board = self.__board
 
         if(current_position == new_position):
             #print("cannot move to same location")
@@ -143,27 +188,47 @@ class Board:
         current_position_index = self.positionToIndex(current_position)
         new_position_index = self.positionToIndex(new_position)
 
-        if(not self.__board[current_position_index][CONST.PIECE_INDEX].isValidMove(current_position_index, new_position_index, self.__board)):
+        if(new_position_index > 63 or new_position_index < 0):
+            return False
+        
+        if(not isinstance(board[current_position_index][CONST.PIECE_INDEX], chessPiece)):
+            return False
+
+        if(not board[current_position_index][CONST.PIECE_INDEX].isValidMove(current_position_index, new_position_index, board)):
             #print("Cannot move " + self.__board[current_position_index][CONST.PIECE_INDEX].name + " to: " + new_position)
             return False
 
-        self.__board[current_position_index][CONST.PIECE_INDEX].first_move = False
-        self.__board[new_position_index][CONST.PIECE_INDEX] = self.__board[current_position_index][CONST.PIECE_INDEX]
-        self.__board[current_position_index][CONST.PIECE_INDEX] = None
-            
+        board[current_position_index][CONST.PIECE_INDEX].first_move = False
+        board[new_position_index][CONST.PIECE_INDEX] = board[current_position_index][CONST.PIECE_INDEX]
+        board[current_position_index][CONST.PIECE_INDEX] = None
+        
+
         return True
 
-    def isCheckMate(self):
+    def isCheckMate(self, attacking_player_positions, player_piece_positions, king_position):
         pass
 
-    def isMate(self, player_number):
-        if(player_number == 1):
-            pass
-        elif(player_number == -1):
-            pass
+    def isMate(self, player_piece_positions, king_position, board = False):
+        if(not board):
+            board = self.__board
+        king_index = self.positionToIndex(king_position)
+        for player_piece_position in player_piece_positions:
 
-        pass
+            player_piece_index = self.positionToIndex(player_piece_position)
+            #print(self.board_positions)
+            #print(player_piece_position)
+            #print(player_piece_index)
+            #print(self.__board[player_piece_index])
+            #input()
+            if(not isinstance(board[player_piece_index][CONST.PIECE_INDEX], chessPiece)):
+                continue
 
+            if(board[player_piece_index][CONST.PIECE_INDEX].isValidMove(player_piece_index, king_index, board)):
+                #print("mate")
+                #input()
+                return True
+
+        return False
     # Toogles the highlight of given positions chess piece
     def toogleSelectedPieces(self, positions): 
 
@@ -190,6 +255,3 @@ class Board:
     # Simply returns position of given index, ex: 0 => "a1" or 63 => "h8"
     def indexToPosition(self, index):
         return self.board_positions[index]
-
-    def indexToPosition(index):
-        return Board.board_positions[index]
