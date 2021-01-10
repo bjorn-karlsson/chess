@@ -1,3 +1,4 @@
+from copy import deepcopy
 from chessPieces import *
 
 class Place:
@@ -62,9 +63,13 @@ class Board:
 
     # Adds pieces to the board
     def __initBoardPieces(self):
-        #self.addPiece('a1', Rook(self.player_color1))
-        #self.addPiece('h8', King(self.player_color2).reverse())
-        #self.addPiece('h2', King(self.player_color1))
+        #self.addPiece('a7', Rook(self.player_color1))
+        #self.addPiece('b7', Rook(self.player_color1))
+        #self.addPiece('e8', King(self.player_color2).reverse())
+        #self.addPiece('e4', Bishop(self.player_color2).reverse())
+        #self.addPiece('e3', Knight(self.player_color2).reverse())
+        #self.addPiece('d2', Rook(self.player_color2).reverse())
+        #self.addPiece('h1', King(self.player_color1))
         #return 
         #Rooks
         self.addPiece('a1', Rook(self.player_color1)), self.addPiece('a8', Rook(self.player_color2).reverse())
@@ -112,7 +117,8 @@ class Board:
 
     # Adds a single piece to a specific board position, ex: pos: "a1", piece: Rook()
     def addPiece(self, position, piece):
-        self.__board[self.positionToIndex(position)][CONST.PIECE_INDEX] = piece      
+        if(isinstance(piece, chessPiece)):
+            self.__board[self.positionToIndex(position)][CONST.PIECE_INDEX] = piece      
 
     # Removes a single piece by board position, ex: "a1"  or "h8"
     def removePieceByPosition(self, position):
@@ -177,9 +183,7 @@ class Board:
             and is_reversed == place[CONST.PIECE_INDEX].is_reversed):
                 return place[CONST.HORIZONTAL_INDEX] + place[CONST.VERTICAL_INDEX]
 
-    def movePiecePosition(self, current_position, new_position, board = False):
-        if(not board):
-            board = self.__board
+    def movePiecePosition(self, current_position, new_position, get_replaced = False):
 
         if(current_position == new_position):
             #print("cannot move to same location")
@@ -191,24 +195,87 @@ class Board:
         if(new_position_index > 63 or new_position_index < 0):
             return False
         
-        if(not isinstance(board[current_position_index][CONST.PIECE_INDEX], chessPiece)):
+        if(not isinstance(self.__board[current_position_index][CONST.PIECE_INDEX], chessPiece)):
             return False
 
-        if(not board[current_position_index][CONST.PIECE_INDEX].isValidMove(current_position_index, new_position_index, board)):
+        if(not self.__board[current_position_index][CONST.PIECE_INDEX].isValidMove(current_position_index, new_position_index, self.__board)):
             #print("Cannot move " + self.__board[current_position_index][CONST.PIECE_INDEX].name + " to: " + new_position)
             return False
-
-        board[current_position_index][CONST.PIECE_INDEX].first_move = False
-        board[new_position_index][CONST.PIECE_INDEX] = board[current_position_index][CONST.PIECE_INDEX]
-        board[current_position_index][CONST.PIECE_INDEX] = None
         
+        replaced_positions = None
+        if(get_replaced):
+            replaced_positions = self.__board[new_position_index][CONST.PIECE_INDEX]
 
+        self.__board[current_position_index][CONST.PIECE_INDEX].first_move = False
+        self.__board[new_position_index][CONST.PIECE_INDEX] = self.__board[current_position_index][CONST.PIECE_INDEX]
+        self.__board[current_position_index][CONST.PIECE_INDEX] = None
+        
+        if(get_replaced):
+            return replaced_positions
+        
         return True
 
-    def isCheckMate(self, attacking_player_positions, player_piece_positions, king_position):
-        pass
+    def isCheckMate(self, attacking_player_positions, defending_player_piece_positions, king_position):
+        copy_of_board = deepcopy(self.__board)
+        #input()
+        copy_of_king_position = king_position
+        #copy_of_board = self.__board[:]
+        #print(len(copy_of_board))
+        #print(len(self.__board))
+        
+        #print("isCheckMate?")
+        #print("attacking:" , attacking_player_positions)
+        #print("defending:" , defending_player_piece_positions)
+        #print("king:" , king_position)
+        #input()
+        #print ("\n")
 
+        for defending_player_piece_position in defending_player_piece_positions:
+            defending_player_piece_position_index = self.positionToIndex(defending_player_piece_position)
+            defending_player_piece = self.__board[defending_player_piece_position_index][CONST.PIECE_INDEX]
+            defending_player_piece_moves = self.getValidMovesOfPosition(defending_player_piece_position)
+            #print("Check position moves:", defending_player_piece_position)
+            #print("Position Index:", defending_player_piece_position_index)
+            #print("Piece:", defending_player_piece.name)
+            #print("Avalible moves:", defending_player_piece_moves)
+            #input()
+            #print("\n")
+
+            for defending_player_move in defending_player_piece_moves:
+                #print(self.positionToIndex("a7"))
+                king_position = copy_of_king_position
+                #print(self.__board[48])
+                #print(copy_of_board[48])
+                #input()
+                self.movePiecePosition(defending_player_piece_position, defending_player_move)
+ 
+
+                if(king_position == defending_player_piece_position):
+                    king_position = defending_player_move
+
+                #input()
+                if(not self.isMate(attacking_player_positions, king_position)):
+                    #self.movePiecePosition(defending_player_move, defending_player_piece_position)
+                    print(self.__str__())
+                    input()
+                    self.__board = deepcopy(copy_of_board)
+                    
+                    return False
+                
+                
+                #self.movePiecePosition(defending_player_move, defending_player_piece_position)
+                #self.addPiece(defending_player_move, result)
+                #self.__board = copy_of_board
+                
+                self.__board = deepcopy(copy_of_board)
+        
+        self.__board = deepcopy(copy_of_board)
+        return True
     def isMate(self, player_piece_positions, king_position, board = False):
+        #print("isMate?")
+        #print("attacking:" , player_piece_positions)
+        #print("king:" , king_position)
+        #input()
         if(not board):
             board = self.__board
         king_index = self.positionToIndex(king_position)
@@ -224,10 +291,11 @@ class Board:
                 continue
 
             if(board[player_piece_index][CONST.PIECE_INDEX].isValidMove(player_piece_index, king_index, board)):
-                #print("mate")
+                #print("True")
                 #input()
                 return True
-
+        #print("False")
+        #input()
         return False
     # Toogles the highlight of given positions chess piece
     def toogleSelectedPieces(self, positions): 

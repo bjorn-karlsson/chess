@@ -1,4 +1,3 @@
-
 from os import system
 from time import sleep 
 import random
@@ -155,7 +154,11 @@ class Chess:
             result = self.__gameInputHandler()
             if(self.__board.isMate(self.current_player.piece_positions, self.__board.getKingPosition(self.waiting_player.team))):
                 if(self.__board.isCheckMate(self.current_player.piece_positions, self.waiting_player.piece_positions, self.__board.getKingPosition(self.waiting_player.team))):
-                    pass
+                    print("Game over...")
+                    input()
+                else:
+                    print("Mate!")
+                    input()
 
             self.switchTurn()
             self.draw()
@@ -164,4 +167,7 @@ class Chess:
         sleep(wait)
         system('cls')
         print(self)
-        
+    
+    def clear(self, wait = 0):
+        sleep(wait)
+        system('cls')
