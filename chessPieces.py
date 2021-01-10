@@ -1,7 +1,7 @@
 import sys
 from termcolor import colored, cprint
 import defines as CONST
-import assets
+import assets as assets
 class chessPiece:
 
     def __init__(self, symbol = 'X', color = 'red', name = "null"):
@@ -13,6 +13,27 @@ class chessPiece:
         self.is_reversed = False # inverts all calculations
         self.moves = []
 
+    def logger(f):
+        def wrapper(*args, **kwargs):
+            
+            #print (f.__name__ + f"{args[0], args[1], args[2],args[3],args[4],}")
+            
+            rv = f(*args, **kwargs)
+            output = "\n("
+            for value, arg in enumerate(args):
+                if isinstance(arg, list): 
+                    continue
+                if value == len(args) - 2:
+                    output += str(arg) + ""
+                else:
+                    output += str(arg) + ", "
+            print(f.__name__ + output + ")")
+            print("\nreturn:",  rv)
+            input()
+            return rv
+        return wrapper
+
+    
     def displayOnBoard(self):
         if(self.selected):
             return colored(self.symbol + " ", self.color, attrs=['reverse', 'bold'])
@@ -22,6 +43,7 @@ class chessPiece:
     # compares current index postion and new or selected index postion with current chess piece index movements
     # also takes current board as List() not Board()
     # max steps is by default False, but when active set it to Int value
+    
     def isValidMove(self, cur_index, new_index, movements, board, max_steps = False): 
         # check if next move / selected move is not outside of the board
         if(new_index > 63 or new_index < 0):
@@ -72,6 +94,7 @@ class chessPiece:
 
         return False
 
+    
     def getValidMoves(self, cur_index, board):
         #return []
         all_moves = self.getAllMoves()
@@ -97,6 +120,7 @@ class chessPiece:
     def convertIndexToPosition(self, index, board):
         return board[index][CONST.HORIZONTAL_INDEX] + board[index][CONST.VERTICAL_INDEX]
 
+    
     def getAllMoves(self):
         all_moves = []
         for move in self.moves:
@@ -126,7 +150,7 @@ class chessPiece:
 
         return False
         
-
+    #@logger
     def collision(self, times, current_index, directional_index, reverse_constant, board):
         prev_index = 0
         check_current_index = current_index
