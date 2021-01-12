@@ -196,7 +196,21 @@ class Rook(chessPiece):
         super().__init__('r', color, "Rook")
         self.moves = [8, 1]
     def isValidMove(self, cur_index, new_index, board):
-        return super().isValidMove(cur_index, new_index, self.moves, board)
+        result = self.isCastling(new_index, board)
+        return CONST.CASTLING_VALUE if result else super().isValidMove(cur_index, new_index, self.moves, board)
+        
+
+    def isCastling(self, new_index, board):
+        if(new_index > 63 or new_index < 0):
+            return False
+
+        if(isinstance(board[new_index][CONST.PIECE_INDEX], King) 
+        and board[new_index][CONST.PIECE_INDEX].is_reversed == self.is_reversed
+        and board[new_index][CONST.PIECE_INDEX].first_move and self.first_move):
+            return True
+        
+        return False
+        
 
 class Bishop(chessPiece):
     def __init__(self, color):

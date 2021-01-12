@@ -4,3 +4,5 @@ PLACE_INDEX = 2
 PIECE_INDEX = 3
 
 HORIZONTAL_VALUES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+
+CASTLING_VALUE = 8

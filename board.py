@@ -68,20 +68,22 @@ class Board:
         #PROMOTION 
         #self.addPiece('e8', King(self.player_color2).reverse())
         #self.addPiece('e1', King(self.player_color1))
-#
+
         #self.addPiece('b5', Pawn(self.player_color1))
         #self.addPiece('c4', Pawn(self.player_color2).reverse())
         #return
 
         ## CASTLING 
-        #self.addPiece('a8', Rook(self.player_color1))
-        #self.addPiece('h8', Rook(self.player_color1))
-        #self.addPiece('e8', King(self.player_color1))
+        self.addPiece('a8', Rook(self.player_color1))
+        self.addPiece('h8', Rook(self.player_color1))
+        self.addPiece('e8', King(self.player_color1))
 
-        #self.addPiece('a8', Rook(self.player_color1).reverse())
-        #self.addPiece('h8', Rook(self.player_color1).reverse())
-        #self.addPiece('e8', King(self.player_color1).reverse())
-        #return 
+        self.addPiece('c1', Bishop(self.player_color2).reverse())
+
+        self.addPiece('a1', Rook(self.player_color2).reverse())
+        self.addPiece('h1', Rook(self.player_color2).reverse())
+        self.addPiece('e1', King(self.player_color2).reverse())
+        return 
         #Rooks
         self.addPiece('a1', Rook(self.player_color1)), self.addPiece('a8', Rook(self.player_color2).reverse())
         self.addPiece('h1', Rook(self.player_color1)), self.addPiece('h8', Rook(self.player_color2).reverse())
@@ -211,10 +213,56 @@ class Board:
 
         return False
 
+    def castling(self, cur_position_index, new_position_index):
+
+        
+        current_position = self.indexToPosition(cur_position_index) 
+
+        if(current_position == "h8" or current_position == "h1"):
+            if(isinstance(self.__board[cur_position_index - 1][CONST.PIECE_INDEX ], chessPiece)
+            or isinstance(self.__board[cur_position_index - 2][CONST.PIECE_INDEX ], chessPiece)):
+                return False
+            self.__board[cur_position_index][CONST.PIECE_INDEX].first_move = False
+            self.__board[new_position_index][CONST.PIECE_INDEX].first_move = False         
+
+            self.__board[cur_position_index - 2][CONST.PIECE_INDEX] = self.__board[cur_position_index][CONST.PIECE_INDEX]
+            self.__board[new_position_index + 2][CONST.PIECE_INDEX] = self.__board[new_position_index][CONST.PIECE_INDEX]
+
+            self.__board[cur_position_index][CONST.PIECE_INDEX] = None
+            self.__board[new_position_index][CONST.PIECE_INDEX] = None
+            return True
+        elif(current_position == "a8" or current_position == "a1"):
+            if(isinstance(self.__board[cur_position_index + 1][CONST.PIECE_INDEX ], chessPiece)
+            or isinstance(self.__board[cur_position_index + 2][CONST.PIECE_INDEX ], chessPiece)
+            or isinstance(self.__board[cur_position_index + 3][CONST.PIECE_INDEX ], chessPiece)):
+                return False
+
+            self.__board[cur_position_index][CONST.PIECE_INDEX].first_move = False
+            self.__board[new_position_index][CONST.PIECE_INDEX].first_move = False
+
+            self.__board[cur_position_index + 3][CONST.PIECE_INDEX] = self.__board[cur_position_index][CONST.PIECE_INDEX]
+            self.__board[new_position_index - 2][CONST.PIECE_INDEX] = self.__board[new_position_index][CONST.PIECE_INDEX]
+
+            self.__board[cur_position_index][CONST.PIECE_INDEX] = None
+            self.__board[new_position_index][CONST.PIECE_INDEX] = None
+            return True
+
+        return False
+        ##SHORT
+        #if(cur_position_index == 63 or cur_position_index == )
+
+        #    return False
+
+        ##LONG
+
+
+        #print(real_dif)
+
+    
+
     def movePiecePosition(self, current_position, new_position, get_replaced = False):
 
         if(current_position == new_position):
-            #print("cannot move to same location")
             return False
 
         current_position_index = self.positionToIndex(current_position)
@@ -226,10 +274,15 @@ class Board:
         if(not isinstance(self.__board[current_position_index][CONST.PIECE_INDEX], chessPiece)):
             return False
 
-        if(not self.__board[current_position_index][CONST.PIECE_INDEX].isValidMove(current_position_index, new_position_index, self.__board)):
-            #print("Cannot move " + self.__board[current_position_index][CONST.PIECE_INDEX].name + " to: " + new_position)
+        result = self.__board[current_position_index][CONST.PIECE_INDEX].isValidMove(current_position_index, new_position_index, self.__board)
+        if(not result):
             return False
+
+        if(result == CONST.CASTLING_VALUE):  
+            return self.castling(current_position_index, new_position_index)
+                
         
+
         replaced_positions = None
         if(get_replaced):
             replaced_positions = self.__board[new_position_index][CONST.PIECE_INDEX]

@@ -14,6 +14,7 @@ class Player:
         self.mate = False
         self.turn = False
         self.piece_positions = []
+        
 
 
 class Chess:
@@ -23,6 +24,9 @@ class Chess:
     ERROR_MESSAGE_MOVING = "unable to move to :"
 
     CONTINUTE_MESSAGE = "Press enter to continue..."
+
+    EXIT_CODE_NORMAL = 1
+
     
 
     def __init__(self):
@@ -31,6 +35,7 @@ class Chess:
         self.current_player = None
         self.waiting_player = None
         self.__board = Board(self.__first_player.color, self.__second_player.color)
+        self.board_history = []
 
     def __str__(self):
         return self.__board.__str__()
@@ -58,8 +63,11 @@ class Chess:
     def __checkInput(self, input):
         if(not self.__validInput(input)):
             return False
-        if(input == "R"):
+        input = input.lower()
+        if(input in ["r", "restart", "reload"]):
             self.restart()
+        if(input in ["q", "quit", "exit"]):
+            exit()
         return True
 
     def __toggleSelectedPositions(self, positions, draw_before = False, draw_after = False):
@@ -69,8 +77,10 @@ class Chess:
 
         if(draw_before):
             self.draw()
+
         for position in positions:
             self.__board.toogleSelectedPieces(position)
+
         if(draw_after):
             self.draw()
 
@@ -89,7 +99,7 @@ class Chess:
         self.__toggleSelectedPositions(self.current_player.piece_positions, False, True)
 
         if(not self.__checkInput(move_from)):
-            return False
+            return self.__gameInputHandler()
 
         if(not self.__board.validPosition(move_from)):
             self.__displayErrorMessage(f"[{move_from}] " + Chess.ERROR_MESSAGE_POSITION)
@@ -181,14 +191,14 @@ class Chess:
                 self.__board.addPiece(result[0], Queen(self.__board.player_color2).reverse())
             return result
         return False
+    
     def update(self):
         self.beginTurn()
-        #print(self.current_player.piece_positions)
-        #input()
+        self.board_history.append(deepcopy(self.__board))
         self.draw()
         while(not self.__first_player.check_mate and not self.__second_player.check_mate):
             
-            result = self.__gameInputHandler()
+            self.__gameInputHandler()
 
             ## CHECK FOR PAWN PROMOTIONS
             self.checkForPromotion(self.current_player)
@@ -198,12 +208,16 @@ class Chess:
             self.checkForMateAndCheckMate(self.current_player, self.waiting_player)
             self.checkForMateAndCheckMate(self.waiting_player, self.current_player)
             
-
+            self.board_history.append(deepcopy(self.__board))
             self.switchTurn()
             self.draw()
 
+        for board in self.board_history:
+            input()
+            self.clear()
+            print(board)
         self.restart()
-        
+
     def draw(self, wait = 0):
         self.clear(wait)
         print(self)
